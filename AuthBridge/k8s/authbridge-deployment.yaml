@@ -223,12 +223,10 @@ spec:
         sidecar.istio.io/inject: "false"
     spec:
       serviceAccountName: agent
-      imagePullSecrets:
-        - name: ghcr-secret
       initContainers:
         # Init container to set up iptables for traffic interception
         - name: proxy-init
-          image: localhost/proxy-init:latest
+          image: quay.io/rh-ee-mofoster/proxy-init:latest
           imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
@@ -255,7 +253,7 @@ spec:
         # Client registration - registers caller with Keycloak using SPIFFE ID
         # Runs as a container (not init) because it needs SPIFFE Helper to be running
         - name: client-registration
-          image: ghcr.io/kagenti/kagenti-extensions/client-registration:latest
+          image: quay.io/rh-ee-mofoster/client-registration:latest
           command:
             - /bin/sh
             - -c
@@ -393,7 +391,7 @@ spec:
               mountPath: /opt
         # AuthProxy - validates and prepares for token exchange
         - name: auth-proxy
-          image: localhost/auth-proxy:latest
+          image: quay.io/rh-ee-mofoster/auth-proxy:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -421,7 +419,7 @@ spec:
         # Uses dynamic credentials from /shared/ (populated by client-registration)
         # The SPIFFE ID is both the client_id AND the token audience, enabling exchange
         - name: envoy-proxy
-          image: localhost/envoy-with-processor:latest
+          image: quay.io/rh-ee-mofoster/envoy-with-processor:latest
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1337
@@ -508,7 +506,7 @@ spec:
     spec:
       containers:
         - name: auth-target
-          image: localhost/demo-app:latest
+          image: quay.io/rh-ee-mofoster/demo-app:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
